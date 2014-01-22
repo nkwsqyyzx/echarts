@@ -209,23 +209,23 @@ define(function (require) {
             }
 
             axShape.style.strokeColor = option.axisLine.lineStyle.color;
-            
+
             var lineWidth = option.axisLine.lineStyle.width;
             axShape.style.lineWidth = lineWidth;
             // 亚像素优化
             if (option.position == 'left' || option.position == 'right') {
                 // 纵向布局，优化x
-                axShape.style.xStart 
-                    = axShape.style.xEnd 
+                axShape.style.xStart
+                    = axShape.style.xEnd
                     = self.subPixelOptimize(axShape.style.xEnd, lineWidth);
             }
             else {
                 // 横向布局，优化y
-                axShape.style.yStart 
-                    = axShape.style.yEnd 
+                axShape.style.yStart
+                    = axShape.style.yEnd
                     = self.subPixelOptimize(axShape.style.yEnd, lineWidth);
             }
-            
+
             axShape.style.lineType = option.axisLine.lineStyle.type;
 
             self.shapeList.push(axShape);
@@ -578,7 +578,13 @@ define(function (require) {
         /**
          * 返回间隔
          */
+        /**
+         * wsq修改:如果data是01-12 09:34:45这种时间类型的话gap返回常量
+         */
         function getGap() {
+            if (isWsqData()) {
+                return 5;
+            }
             var dataLength = option.data.length;
             var total = (option.position == 'bottom'
                         || option.position == 'top')
@@ -592,6 +598,13 @@ define(function (require) {
             }
         }
 
+        function isWsqData(){
+            var dataLength = option.data.length;
+            if (dataLength < 1) return false;
+            var d = option.data[0];
+            return /^\d\d-\d\d \d\d:\d\d:\d\d$/.test(d);
+        }
+
         // 根据值换算位置
         function getCoord(value) {
             var data = option.data;
@@ -602,7 +615,7 @@ define(function (require) {
             // Math.floor可能引起一些偏差，但性能会更好
             for (var i = 0; i < dataLength; i++) {
                 if (data[i] == value
-                    || (typeof data[i].value != 'undefined' 
+                    || (typeof data[i].value != 'undefined'
                         && data[i].value == value)
                 ) {
                     if (option.position == 'bottom'
@@ -621,6 +634,11 @@ define(function (require) {
                 }
                 position += gap;
             }
+        }
+
+        function DateFromString(thisYear,sz)
+        {
+            return Date("" + thisYear + "-" + sz.replace(' ', 'T'));
         }
 
         // 根据类目轴数据索引换算位置
@@ -642,11 +660,20 @@ define(function (require) {
                 }
             }
             else {
+                var thisYear = new Date().getFullYear();
                 var gap = getGap();
                 var position = option.boundaryGap ? gap : 0;
-    
-                position += dataIndex * gap;
-                
+
+                if (isWsqData()){
+                    var d0 = DateFromString(thisYear,option.data[0]);
+                    var d1 = DateFromString(thisYear,option.data[dataIndex]);
+                    var g = (d1-d0)/1000*gap;
+                    position += gap;
+                }
+                else{
+                    position += dataIndex * gap;
+                }
+
                 if (option.position == 'bottom'
                     || option.position == 'top'
                 ) {
@@ -657,11 +684,11 @@ define(function (require) {
                     // 纵向
                     position = grid.getYend() - position;
                 }
-                
+
                 return (dataIndex === 0 || dataIndex == option.data.length - 1)
                        ? position
                        : Math.floor(position);
-                
+
                // return getCoord(option.data[dataIndex]);
             }
         }
@@ -677,7 +704,7 @@ define(function (require) {
                 return data;
             }
         }
-        
+
         // 根据类目轴名称换算类目轴数据索引
         function getIndexByName(name) {
             var data = option.data;
@@ -685,7 +712,7 @@ define(function (require) {
 
             for (var i = 0; i < dataLength; i++) {
                 if (data[i] == name
-                    || (typeof data[i].value != 'undefined' 
+                    || (typeof data[i].value != 'undefined'
                         && data[i].value == name)
                 ) {
                     return i;
@@ -720,6 +747,6 @@ define(function (require) {
     }
 
     require('../component').define('categoryAxis', CategoryAxis);
-    
+
     return CategoryAxis;
 });

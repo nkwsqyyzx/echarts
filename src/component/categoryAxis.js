@@ -583,7 +583,7 @@ define(function (require) {
          */
         function getGap() {
             if (isWsqData()) {
-                return 5;
+                return 1;
             }
             var dataLength = option.data.length;
             var total = (option.position == 'bottom'
@@ -638,7 +638,7 @@ define(function (require) {
 
         function DateFromString(thisYear,sz)
         {
-            return Date("" + thisYear + "-" + sz.replace(' ', 'T'));
+            return new Date("" + thisYear + "-" + sz.replace(' ', 'T'));
         }
 
         // 根据类目轴数据索引换算位置
@@ -667,8 +667,9 @@ define(function (require) {
                 if (isWsqData()){
                     var d0 = DateFromString(thisYear,option.data[0]);
                     var d1 = DateFromString(thisYear,option.data[dataIndex]);
-                    var g = (d1-d0)/1000*gap;
-                    position += gap;
+                    var g = (d1-d0)/1000;
+                    position += gap*g/360;
+                    console.log(position);
                 }
                 else{
                     position += dataIndex * gap;

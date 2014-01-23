@@ -24,6 +24,26 @@
         }
         return false;
     }
+    var indexOf = function(needle) {
+        if(typeof Array.prototype.indexOf === 'function') {
+            indexOf = Array.prototype.indexOf;
+        } else {
+            indexOf = function(needle) {
+                var i = -1, index = -1;
+
+                for(i = 0; i < this.length; i++) {
+                    if(this[i] === needle) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                return index;
+            };
+        }
+
+        return indexOf.call(this, needle);
+    };
 </script>
 <script type="text/javascript">
     // Step:3 echarts & zrender as a Global Interface by the echarts-plain.js.
@@ -375,6 +395,11 @@
     }
 
     var dateShowed = [];
+    var times = [];
+
+    for (var i = 0; i < chartData2.length; i++) {
+        times.push(chartData2[i].time);
+    }
 
     var myChart = echarts.init(document.getElementById('main'));
     myChart.setOption({
@@ -382,7 +407,8 @@
             trigger: 'axis',
             formatter:function(params,ticket,callback)
             {
-                var m = parseInt(ticket.substring(5));
+                var time = params[0][1];
+                var m = times.indexOf(time);
                 if (m < 0 || m > chartData2.length -1)return 'error when calculate '+ticket;
                 var d = chartData2[m];
                 return d.time+'<br/>'+d.s1+" "+ d.p+" "+d.s2;

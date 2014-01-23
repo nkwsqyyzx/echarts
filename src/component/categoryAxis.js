@@ -644,6 +644,7 @@ define(function (require) {
             else {
                 var gap = getGap();
                 var position = option.boundaryGap ? gap : 0;
+                var max = 0;
 
                 position += dataIndex * gap;
 
@@ -652,14 +653,16 @@ define(function (require) {
                 ) {
                     // 横向
                     position = grid.getX() + position;
+                    max = grid.getWidth();
                 }
                 else {
                     // 纵向
                     position = grid.getYend() - position;
+                    max = grid.getHeight();
                 }
 
                 if (option.getCoordByIndex)
-                    return position + option.getCoordByIndex(dataIndex);
+                    return position + option.getCoordByIndex(dataIndex,max);
 
                 return (dataIndex === 0 || dataIndex == option.data.length - 1)
                        ? position

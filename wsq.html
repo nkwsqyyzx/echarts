@@ -401,6 +401,13 @@
         times.push(chartData2[i].time);
     }
 
+    var timeSpan = (function(){
+        var t0 = DateFromString(times[0]);
+        var t1 = DateFromString(times[times.length - 1]);
+        var seconds = (t1 - t0)/1000;
+        return seconds;
+    })();
+
     var myChart = echarts.init(document.getElementById('main'));
     myChart.setOption({
         tooltip: {
@@ -414,6 +421,9 @@
                 return d.time+'<br/>'+d.s1+" "+ d.p+" "+d.s2;
             }
         },
+        dataZoom: {
+            show: true,
+        },
         toolbox: {
             show: true,
             feature: {
@@ -426,18 +436,19 @@
                 saveAsImage: true
             }
         },
-        dataZoom: {
-            show: true
-        },
         calculable: true,
         xAxis: [{
             type: 'category',
-            isWsqData: true,
-            getCoordByIndex: function (dataIndex) {
+            getGap:function()
+            {
+                return 1;
+            },
+            getCoordByIndex: function (dataIndex,max) {
                 var d0 = DateFromString(this.data[0]);
                 var d1 = DateFromString(this.data[dataIndex]);
-                var g = (d1 - d0) / 1000;
-                return Math.floor(g / 60);
+                var g = (d1 - d0)/(1000*100);
+                var r = (g * max / timeSpan);
+                return r;
             },
             axisLabel: {
                 show: true,

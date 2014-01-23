@@ -642,8 +642,6 @@ define(function (require) {
                 }
             }
             else {
-                if (option.getCoordByIndex)
-                    return option.getCoordByIndex(dataIndex);
                 var gap = getGap();
                 var position = option.boundaryGap ? gap : 0;
 
@@ -659,6 +657,9 @@ define(function (require) {
                     // 纵向
                     position = grid.getYend() - position;
                 }
+
+                if (option.getCoordByIndex)
+                    return position + option.getCoordByIndex(dataIndex);
 
                 return (dataIndex === 0 || dataIndex == option.data.length - 1)
                        ? position

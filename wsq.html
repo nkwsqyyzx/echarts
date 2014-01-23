@@ -9,7 +9,7 @@
 <body>
     <!--Step:2 Prepare a dom for ECharts which (must) has size (width & hight)-->
     <!--Step:2 为ECharts准备一个具备大小（宽高）的Dom-->
-    <div id="main" style="height:500px;border:1px solid #ccc;padding:10px;"></div>
+    <div id="main" style="height:600px;width:4500px;border:1px solid #ccc;padding:10px;"></div>
 </body>
 <!--Step:1 Import echarts-plain.js or echarts-plain-map.js-->
 <!--Step:1 引入echarts-plain.js或者 echarts-plain-map.js-->
@@ -357,6 +357,12 @@
         s2: '1.05'
     });
 
+    function DateFromString(thisYear,sz)
+    {
+        return new Date("" + thisYear + "-" + sz.replace(' ', 'T'));
+    }
+
+
     var myChart = echarts.init(document.getElementById('main'));
     myChart.setOption({
         tooltip: {
@@ -383,6 +389,14 @@
         calculable: true,
         xAxis: [{
             type: 'category',
+            isWsqData: true,
+            getCoordByIndex:function(dataIndex){
+                var thisYear = new Date().getFullYear();
+                var d0 = DateFromString(thisYear,this.data[0]);
+                var d1 = DateFromString(thisYear,this.data[dataIndex]);
+                var g = (d1-d0)/1000;
+                return Math.floor(g/360);
+            },
             data: (function () {
                 var d = [];
                 for (var i = 0; i < chartData2.length; i++) {
@@ -397,8 +411,10 @@
         yAxis: [{
             type: 'value',
             precision: 3,
-            min: 0.775,
-            max: 1.225,
+            splitNumber: 50,
+            min: 0.75,
+            max: 1.25,
+            scale: true,
             axisTick: {
                 show: true
             },

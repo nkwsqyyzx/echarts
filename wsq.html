@@ -9,7 +9,7 @@
 <body>
     <!--Step:2 Prepare a dom for ECharts which (must) has size (width & hight)-->
     <!--Step:2 为ECharts准备一个具备大小（宽高）的Dom-->
-    <div id="main" style="height:600px;width:4500px;border:1px solid #ccc;padding:10px;"></div>
+    <div id="main" style="height:600px;border:1px solid #ccc;padding:10px;"></div>
 </body>
 <!--Step:1 Import echarts-plain.js or echarts-plain-map.js-->
 <!--Step:1 引入echarts-plain.js或者 echarts-plain-map.js-->
@@ -437,7 +437,7 @@
                 var d0 = DateFromString(this.data[0]);
                 var d1 = DateFromString(this.data[dataIndex]);
                 var g = (d1 - d0) / 1000;
-                return Math.floor(g / 360);
+                return Math.floor(g / 60);
             },
             axisLabel: {
                 show: true,

@@ -15,6 +15,17 @@
 <!--Step:1 引入echarts-plain.js或者 echarts-plain-map.js-->
 <script src="build/echarts-plain.js"></script>
 <script type="text/javascript">
+    Array.prototype.contains = function (obj) {
+        var i = this.length;
+        while (i--) {
+            if (this[i] === obj) {
+                return true;
+            }
+        }
+        return false;
+    }
+</script>
+<script type="text/javascript">
     // Step:3 echarts & zrender as a Global Interface by the echarts-plain.js.
     // Step:3 echarts和zrender被echarts-plain.js写入为全局接口
     // 10BET
@@ -41,7 +52,7 @@
     chartData2.push({
         time: '01-12 16:48:05',
         s1: '1.025',
-        p: '半球/一球',
+        p: '一球',
         s2: '0.825'
     });
     chartData2.push({
@@ -357,19 +368,25 @@
         s2: '1.05'
     });
 
-    function DateFromString(thisYear,sz)
-    {
+    var thisYear = new Date().getFullYear();
+
+    function DateFromString(sz) {
         return new Date("" + thisYear + "-" + sz.replace(' ', 'T'));
     }
 
+    var dateShowed = [];
 
     var myChart = echarts.init(document.getElementById('main'));
     myChart.setOption({
         tooltip: {
-            trigger: 'axis'
-        },
-        legend: {
-            data: ['蒸发量']
+            trigger: 'axis',
+            formatter:function(params,ticket,callback)
+            {
+                var m = parseInt(ticket.substring(5));
+                if (m < 0 || m > chartData2.length -1)return 'error when calculate '+ticket;
+                var d = chartData2[m];
+                return d.time+'<br/>'+d.s1+" "+ d.p+" "+d.s2;
+            }
         },
         toolbox: {
             show: true,
@@ -390,12 +407,23 @@
         xAxis: [{
             type: 'category',
             isWsqData: true,
-            getCoordByIndex:function(dataIndex){
-                var thisYear = new Date().getFullYear();
-                var d0 = DateFromString(thisYear,this.data[0]);
-                var d1 = DateFromString(thisYear,this.data[dataIndex]);
-                var g = (d1-d0)/1000;
-                return Math.floor(g/360);
+            getCoordByIndex: function (dataIndex) {
+                var d0 = DateFromString(this.data[0]);
+                var d1 = DateFromString(this.data[dataIndex]);
+                var g = (d1 - d0) / 1000;
+                return Math.floor(g / 360);
+            },
+            axisLabel: {
+                show: true,
+                formatter: function (value) {
+                    var d = DateFromString(value);
+                    if (dateShowed.contains(d.getDate()))
+                        return value.substring(5);
+                    else {
+                        dateShowed.push(d.getDate());
+                        return value;
+                    }
+                }
             },
             data: (function () {
                 var d = [];
@@ -428,12 +456,51 @@
             data: (function () {
                 var d = [];
                 for (var i = 0; i < chartData2.length; i++) {
-                    d.push(chartData2[i].s1);
+                    d.push(DataFromIndex(i));
                 }
                 return d;
             })()
         }]
     });
+
+    function DataFromIndex(i) {
+        if (i < 0 || i > chartData2.length - 1) return null;
+        var d = chartData2[i];
+        if (i == 0) return d.s1;
+        var d0 = chartData2[i - 1];
+
+        var r = {};
+        r.value = d.s1;
+        // 时间移动到下一天
+        if (DateFromString(d0.time).getDate() != DateFromString(d.time).getDate()) {
+            r.symbol = 'droplet';
+            r.symbolSize = 5;
+        }
+
+        // 盘口改变
+        if (d0.p != d.p) {
+            r.symbol = 'star6';
+            r.symbolSize = 40;
+            r.symbolRotate = 10;
+            r.itemStyle = {
+                normal: {
+                    color: 'yellowgreen'
+                },
+                emphasis: {
+                    color: 'orange',
+                    label: {
+                        show: true,
+                        position: 'inside',
+                        textStyle: {
+                            fontSize: '20'
+                        }
+                    }
+                }
+            };
+        }
+
+        return r;
+    }
 </script>
 
 </html>

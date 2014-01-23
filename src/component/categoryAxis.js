@@ -669,6 +669,7 @@ define(function (require) {
 
         // 根据类目轴数据索引换算类目轴名称
         function getNameByIndex(dataIndex) {
+            if (option.getNameByIndex) return option.getNameByIndex(dataIndex);
             var data = option.data[dataIndex];
             if (typeof data != 'undefined' && typeof data.value != 'undefined')
             {

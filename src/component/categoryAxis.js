@@ -578,13 +578,7 @@ define(function (require) {
         /**
          * 返回间隔
          */
-        /**
-         * wsq修改:如果data是01-12 09:34:45这种时间类型的话gap返回常量
-         */
         function getGap() {
-            if (isWsqData()) {
-                return 1;
-            }
             var dataLength = option.data.length;
             var total = (option.position == 'bottom'
                         || option.position == 'top')
@@ -596,13 +590,6 @@ define(function (require) {
             else {                                  // 顶头
                 return total / (dataLength > 1 ? (dataLength - 1) : 1);
             }
-        }
-
-        function isWsqData(){
-            var dataLength = option.data.length;
-            if (dataLength < 1) return false;
-            var d = option.data[0];
-            return /^\d\d-\d\d \d\d:\d\d:\d\d$/.test(d);
         }
 
         // 根据值换算位置
@@ -636,11 +623,6 @@ define(function (require) {
             }
         }
 
-        function DateFromString(thisYear,sz)
-        {
-            return new Date("" + thisYear + "-" + sz.replace(' ', 'T'));
-        }
-
         // 根据类目轴数据索引换算位置
         function getCoordByIndex(dataIndex) {
             if (dataIndex < 0) {
@@ -660,20 +642,12 @@ define(function (require) {
                 }
             }
             else {
-                var thisYear = new Date().getFullYear();
+                if (option.getCoordByIndex)
+                    return option.getCoordByIndex(dataIndex);
                 var gap = getGap();
                 var position = option.boundaryGap ? gap : 0;
 
-                if (isWsqData()){
-                    var d0 = DateFromString(thisYear,option.data[0]);
-                    var d1 = DateFromString(thisYear,option.data[dataIndex]);
-                    var g = (d1-d0)/1000;
-                    position += gap*g/360;
-                    console.log(position);
-                }
-                else{
-                    position += dataIndex * gap;
-                }
+                position += dataIndex * gap;
 
                 if (option.position == 'bottom'
                     || option.position == 'top'
@@ -689,8 +663,6 @@ define(function (require) {
                 return (dataIndex === 0 || dataIndex == option.data.length - 1)
                        ? position
                        : Math.floor(position);
-
-               // return getCoord(option.data[dataIndex]);
             }
         }
 
@@ -736,7 +708,7 @@ define(function (require) {
 
         self.init = init;
         self.refresh = refresh;
-        self.getGap = getGap;
+        self.getGap = option.getGap ? option.getGap : getGap;
         self.getCoord = getCoord;
         self.getCoordByIndex = getCoordByIndex;
         self.getNameByIndex = getNameByIndex;

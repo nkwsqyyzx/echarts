@@ -418,7 +418,7 @@
                 var m = times.indexOf(time);
                 if (m < 0 || m > chartData2.length -1)return 'error when calculate '+ticket;
                 var d = chartData2[m];
-                return d.time+'<br/>'+d.s1+" "+ d.p+" "+d.s2;
+                return d.time+'<br/>亚盘: '+d.s1+" "+ d.p+" "+d.s2+"<br/>欧赔: 1.8 3.4 4.5";
             }
         },
         dataZoom: {
@@ -439,17 +439,6 @@
         calculable: true,
         xAxis: [{
             type: 'category',
-            getGap:function()
-            {
-                return 1;
-            },
-            getCoordByIndex: function (dataIndex,max) {
-                var d0 = DateFromString(this.data[0]);
-                var d1 = DateFromString(this.data[dataIndex]);
-                var g = (d1 - d0)/(1000*100);
-                var r = (g * max / timeSpan);
-                return r;
-            },
             axisLabel: {
                 show: true,
                 formatter: function (value) {
@@ -510,29 +499,18 @@
         r.value = d.s1;
         // 时间移动到下一天
         if (DateFromString(d0.time).getDate() != DateFromString(d.time).getDate()) {
-            r.symbol = 'droplet';
+            r.symbol = 'emptyDiamond';
             r.symbolSize = 5;
         }
 
         // 盘口改变
         if (d0.p != d.p) {
-            r.symbol = 'star6';
-            r.symbolSize = 40;
-            r.symbolRotate = 10;
+            r.symbol = 'star8';
+            r.symbolSize = 3;
             r.itemStyle = {
                 normal: {
-                    color: 'yellowgreen'
+                    color: 'green'
                 },
-                emphasis: {
-                    color: 'orange',
-                    label: {
-                        show: true,
-                        position: 'inside',
-                        textStyle: {
-                            fontSize: '20'
-                        }
-                    }
-                }
             };
         }
 
